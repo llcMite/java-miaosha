@@ -133,7 +133,7 @@
             <!--允许移动生成的文件-->
             <verbose>true</verbose>
             <!--允许自动覆盖文件，一般项目开发中不允许设置为true，这样会把别人的工作成果给覆盖了-->
-            <overwrite>true</overwrite>
+            <overwrite>false</overwrite>
             <configurationFile>
               src/main/resources/mybatis-generator.xml
             </configurationFile>

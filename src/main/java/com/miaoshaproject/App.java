@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication(scanBasePackages = "com.miaoshaproject")
-@MapperScan("com.miaoshaproject.dao")
+@MapperScan({"com.miaoshaproject.dao"})
 public class App 
 {
     public static void main( String[] args )
