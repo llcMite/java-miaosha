@@ -8,6 +8,7 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.service.ItemService;
 import com.miaoshaproject.service.model.ItemModel;
+import com.miaoshaproject.service.model.PromoModel;
 import com.miaoshaproject.validator.ValidationResult;
 import com.miaoshaproject.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +28,8 @@ public class ItemServiceImpl implements ItemService {
     private ItemDOMapper itemDOMapper;
     @Autowired
     private StockDOMapper stockDOMapper;
+    @Autowired
+    private PromoServiceImpl promoService;
     @Override
     @Transactional //?不懂
     public ItemModel createItem(ItemModel itemModel) throws BusinessException {
@@ -59,9 +62,33 @@ public class ItemServiceImpl implements ItemService {
         if(itemDO == null){
             return null;
         }
+        //获取库存数量
         StockDO stockDO=stockDOMapper.selectByItemId(itemDO.getId());
         ItemModel itemModel=this.converItemModelFromItemDO(itemDO,stockDO);
+
+        //获取活动商品信息
+        PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
+        if(promoModel != null){
+            itemModel.setPromoModel(promoModel);
+        }
+
+
         return itemModel;
+    }
+
+    @Override
+    public boolean decreaseStock(Integer itemId, Integer amount) throws BusinessException {
+        int affectedRow =stockDOMapper.decreaseStock(itemId,amount);
+        if(affectedRow>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public void increaseSales(Integer itemId, Integer amount) throws BusinessException {
+        itemDOMapper.increaseSales(itemId,amount);
     }
 
     public ItemDO convertItemDOFromItemModel(ItemModel itemModel){

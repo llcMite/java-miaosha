@@ -5,6 +5,7 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.impl.ItemServiceImpl;
 import com.miaoshaproject.service.model.ItemModel;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,17 @@ public class ItemController extends BaseController{
             return null;
         }
         BeanUtils.copyProperties(itemModel,itemVO);
+
+        //如果有秒杀活动
+        if(itemModel.getPromoModel() !=null){
+            itemVO.setPromoStatus(itemModel.getPromoModel().getStatus());
+            itemVO.setPromoId(itemModel.getPromoModel().getId());
+            itemVO.setStartDate(itemModel.getPromoModel().getStartDate()
+            .toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
+            itemVO.setPromoPrice(itemModel.getPromoModel().getPromo_item_price());
+        }else{
+            itemVO.setPromoStatus(0);
+        }
         return itemVO;
 
     }
