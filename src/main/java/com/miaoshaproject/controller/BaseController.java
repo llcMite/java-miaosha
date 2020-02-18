@@ -4,6 +4,7 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.response.CommonReturnType;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -13,8 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+@CrossOrigin(allowCredentials = "true",allowedHeaders = "*")//在跨域的情况下session是不支持共享的，前端也需要设置xhrFields:{widthCredentials:true}
 public class BaseController {
     public static final String CONTENT_TYPE_FORMED="application/x-www-form-urlencoded";
+    public static final String CONTENT_TYPE_JSON ="application/json";
     @ExceptionHandler
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody

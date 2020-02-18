@@ -23,6 +23,11 @@
     -->
     id, name, gender, age, register_mode, third_party_id, telphone
   </sql>
+
+  <select id="getUserList"  resultMap="BaseResultMap">
+    select * from user_info
+  </select>
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
@@ -34,6 +39,9 @@
     from user_info
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+
+
   <select id="selectByTelphone"  resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
@@ -45,6 +53,7 @@
     from user_info
     where telphone = #{telphone,jdbcType=VARCHAR}
   </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

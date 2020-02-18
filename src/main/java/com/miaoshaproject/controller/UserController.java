@@ -1,6 +1,8 @@
 package com.miaoshaproject.controller;
 
 import com.alibaba.druid.util.StringUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.miaoshaproject.controller.viewobject.UserVO;
 
 
@@ -19,11 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(allowCredentials = "true",allowedHeaders = "*")//在跨域的情况下session是不支持共享的，前端也需要设置xhrFields:{widthCredentials:true}
 public class UserController extends BaseController{
     @Autowired
     private UserServiceImpl userService;
@@ -31,7 +32,7 @@ public class UserController extends BaseController{
     @Autowired
     private HttpServletRequest httpServletRequest;
 
-    @RequestMapping("/getuser")
+    @RequestMapping(value = "/getuser",method = RequestMethod.GET)
     @ResponseBody
     public CommonReturnType getUserById(@RequestParam(name="id")Integer id)throws BusinessException{
         UserVO userVO=new UserVO();
@@ -68,14 +69,17 @@ public class UserController extends BaseController{
         System.out.println("telphone = " + telphone + "& otpCode = " + otpCode);
         return CommonReturnType.create(null);
     }
+
     //用户登入功能
-    @RequestMapping(value="/login",method={RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
+    @RequestMapping(value="/login",method={RequestMethod.POST},consumes = {CONTENT_TYPE_JSON})
     @ResponseBody
-    public CommonReturnType login(@RequestParam(name="telphone")String telphone,
-                                  @RequestParam(name="password")String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+    public CommonReturnType login(@RequestBody String jsonStr) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+        JSONObject requestJson = JSON.parseObject(jsonStr);
+        String telphone=(String)requestJson.get("telphone");
+        String password=(String)requestJson.get("password");
         //入参校验
         if(StringUtils.isEmpty(telphone)||
-        StringUtils.isEmpty(password)){
+        StringUtils.isEmpty(password) ){
             throw new BusinessException(EmBusinessError.PARAMTER_VALIDATION_ERROR);
         }
         //验证登入是否合法
@@ -88,7 +92,16 @@ public class UserController extends BaseController{
         return CommonReturnType.create(null);
 
     }
+    //用户登入功能
+    @RequestMapping(value="/loginOut",method={RequestMethod.GET})
+    @ResponseBody
+    public CommonReturnType loginOut(@RequestParam(name="telphone")String telphone) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+        //添加登入成功的session
+        this.httpServletRequest.getSession().removeAttribute("IS_LOGIN");
+        this.httpServletRequest.getSession().removeAttribute("LOGIN_USER");
+        return CommonReturnType.create(null);
 
+    }
     //用户注册功能
     @RequestMapping(value="/register",method={RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
     @ResponseBody
@@ -118,6 +131,22 @@ public class UserController extends BaseController{
 
         return CommonReturnType.create(null);
     }
+    //用户列表
+    @RequestMapping(value = "/getUserList",method = RequestMethod.GET)
+    @ResponseBody
+    public CommonReturnType getUserList()throws BusinessException{
+        List<UserModel> userModelList=userService.getUserList();
+        ListIterator userListIt=userModelList.listIterator();
+        List<UserVO> userVOList=new ArrayList<>();
+
+        while(userListIt.hasNext()){
+            UserModel userModel = (UserModel) userListIt.next();
+            UserVO userVO=converUserVOFromUserModel(userModel);
+            userVOList.add(userVO);
+        }
+        return CommonReturnType.create(userVOList);
+    }
+
     //md5的加密计算
     //java自带的md5只支持16位
     public String EncodeByMd5(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {

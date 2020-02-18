@@ -18,6 +18,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -107,5 +111,18 @@ public class UserServiceImpl implements UserService {
         }
         UserModel userModel=converFromUserDO(userDO,userPasswordDO);
         return userModel;
+    }
+
+    @Override
+    public List<UserModel> getUserList() throws BusinessException {
+        List<UserDO> userList= userDOMapper.getUserList();
+        List<UserModel> userModelList=new ArrayList<>();
+        ListIterator userIt1 = userList.listIterator();
+        while(userIt1.hasNext()){
+            UserDO userDO = (UserDO) userIt1.next();
+            UserModel userModel=converFromUserDO(userDO,null);
+            userModelList.add(userModel);
+        }
+        return userModelList;
     }
 }
